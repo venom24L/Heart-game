@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Injy's Extreme Challenge ♡</title>
+    <link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Poppins:wght@400;600&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        html, body { touch-action: none; overflow: hidden; width: 100%; height: 100%; background: #000; position: fixed; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; color: white; text-align: center; }
+        #game-container { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; }
+        .instruction { font-family: 'Parisienne'; font-size: clamp(1.5rem, 6vw, 2.5rem); color: #ff99ac; position: absolute; top: 8%; width: 100%; pointer-events: none; z-index: 5; text-shadow: 0 0 15px rgba(255,153,172,0.5); }
+        
+        #heart { 
+            position: absolute; 
+            font-size: 60px; 
+            user-select: none; 
+            -webkit-user-select: none; 
+            display: flex; align-items: center; justify-content: center; 
+            filter: drop-shadow(0 0 15px #ff4d6d); 
+            z-index: 999; /* خليته أعلى حاجة عشان يتشاف دايما */
+            left: 50%; top: 50%; 
+            transform: translate(-50%, -50%); 
+            padding: 20px; /* كبرت مساحة اللمس */
+        }
+
+        #final-message { 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            animation: fadeIn 0.8s ease-out forwards; 
+            padding: 20px; 
+            z-index: 1000; /* شاشة النهاية لازم تغطي كل حاجة */
+            position: relative;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .char-img { width: clamp(200px, 55vw, 320px); height: clamp(200px, 55vw, 320px); object-fit: cover; border-radius: 25px; border: 3px solid #ff99ac; box-shadow: 0 0 30px rgba(255,153,172,0.4); margin-bottom: 20px; }
+        .special-text { font-family: 'Parisienne'; font-size: 2.2rem; color: #ff4d6d; margin-bottom: 5px; }
+        .sub-text { font-family: 'Caveat'; font-size: 1.6rem; color: #eee; max-width: 320px; line-height: 1.2; }
+        .venom-footer { margin-top: 25px; font-family: 'Parisienne'; font-size: 2rem; color: #ff99ac; text-shadow: 0 0 10px #ff4d6d; animation: glow 2s infinite alternate; }
+        @keyframes glow { from { text-shadow: 0 0 10px #ff4d6d; transform: scale(1); } to { text-shadow: 0 0 25px #ff4d6d; transform: scale(1.05); } }
+        .reset-btn { margin-top: 20px; padding: 12px 30px; background: rgba(255,153,172,0.2); border: 2px solid #ff99ac; color: white; border-radius: 50px; font-family: 'Parisienne'; cursor: pointer; font-size: 1.5rem; position: relative; z-index: 1001; }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1 id="title" class="instruction">Catch it if you can, Injy! 😈</h1>
+        <div id="heart">❤️</div>
+        <div id="final-message">
+            <img id="result-img" class="char-img" src="" alt="Character">
+            <h2 id="result-title" class="special-text"></h2>
+            <p id="result-quote" class="sub-text"></p>
+            <div id="venom-note" class="venom-footer" style="display: none;"></div>
+            <button id="action-btn" class="reset-btn">Try Again?</button>
+        </div>
+    </div>
+
+    <script>
+        let escapeCount = 0; 
+        let currentLevel = 1; 
+        let maxEscapes = 15;
+        const heart = document.getElementById('heart'); 
+        const title = document.getElementById('title');
+        const finalMessage = document.getElementById('final-message'); 
+        const resultImg = document.getElementById('result-img');
+        const resultTitle = document.getElementById('result-title'); 
+        const resultQuote = document.getElementById('result-quote');
+        const actionBtn = document.getElementById('action-btn');
+        const venomNote = document.getElementById('venom-note');
+
+        function teleportHeart() {
+            if (escapeCount >= maxEscapes) return;
+
+            const maxX = window.innerWidth - 100; 
+            const maxY = window.innerHeight - 150;
+            const minX = 50; 
+            const minY = 100;
+
+            const newX = Math.random() * (maxX - minX) + minX; 
+            const newY = Math.random() * (maxY - minY) + minY;
+
+            heart.style.left = newX + 'px'; 
+            heart.style.top = newY + 'px';
+            
+            escapeCount++;
+
+            let baseSize = (currentLevel === 1) ? 60 : 45;
+            let newSize = Math.max(25, baseSize - (escapeCount * 1.5));
+            heart.style.fontSize = newSize + 'px';
+
+            if (escapeCount === Math.floor(maxEscapes/2)) title.innerText = "Getting warmer... 😜";
+            if (escapeCount === maxEscapes - 1) title.innerText = "One more! ❤️";
+
+            if (escapeCount === maxEscapes) { 
+                title.innerText = "You caught it! ♡"; 
+                heart.style.fontSize = '85px'; 
+                heart.style.transition = "all 0.5s ease"; 
+                heart.style.left = '50%';
+                heart.style.top = '50%';
+                heart.style.filter = "drop-shadow(0 0 30px #ff4d6d)";
+            }
+        }
+
+        function showWinner() {
+            heart.style.display = 'none'; 
+            title.style.display = 'none'; 
+            finalMessage.style.display = 'flex';
+            
+            if (currentLevel === 1) {
+                resultImg.src = "https://i.ibb.co/XrGJN2qL/cca7306ec12eca7839041d76ed0e9432.jpg";
+                resultTitle.innerText = "You got it! ♡";
+                resultQuote.innerText = '"Throughout Heaven and Earth, you alone are the precious one, Injy."';
+                actionBtn.innerText = "Try Harder? 😈";
+                actionBtn.onclick = nextLevel;
+            } else {
+                resultImg.src = "https://i.ibb.co/yFpW9w0W/a3f96501c35eef0b5356a02df9877502.jpg";
+                resultTitle.innerText = "Impossible Cleared! ♡";
+                resultQuote.innerText = '"You really are something else, Injy. Toji is impressed... and so is the one who made this for you."';
+                venomNote.style.display = "block";
+                venomNote.innerText = "Respect to Venom for this masterpiece ♡";
+                actionBtn.style.display = "none";
+            }
+        }
+
+        // حل مشكلة اللمس والضغط المزدوج على GitHub
+        const handleInteraction = (e) => {
+            if (escapeCount >= maxEscapes) {
+                showWinner();
+            } else {
+                teleportHeart();
+            }
+        };
+
+        // استخدام PointerDown لضمان العمل على كل الأجهزة
+        heart.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            handleInteraction(e);
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (escapeCount >= maxEscapes) return;
+            const touch = e.touches[0]; 
+            const heartRect = heart.getBoundingClientRect();
+            const distance = Math.hypot(touch.clientX - (heartRect.left + heartRect.width/2), touch.clientY - (heartRect.top + heartRect.height/2));
+            const triggerDist = (currentLevel === 1) ? 80 : 120;
+            if (distance < triggerDist) teleportHeart();
+        }, { passive: false });
+
+        function nextLevel() {
+            currentLevel = 2; maxEscapes = 30; escapeCount = 0;
+            finalMessage.style.display = 'none'; 
+            heart.style.display = 'flex';
+            heart.style.left = '50%'; heart.style.top = '50%'; 
+            heart.style.fontSize = '45px';
+            heart.style.transition = "none";
+            title.style.display = 'block'; 
+            title.innerText = "Level: IMPOSSIBLE 💀";
+        }
+    </script>
+</body>
+</html>
